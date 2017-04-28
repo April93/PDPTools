@@ -1,0 +1,1 @@
+g++ lodepng.cpp BFF2.cpp encode.cpp -ansi -Wall -Wextra -O3
