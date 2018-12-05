@@ -9,9 +9,16 @@
 #include <ios>
 #include <iomanip>
 #include <algorithm>
+#include <cstring>
+#include <strings.h>
 
+#if defined(_WIN32)
+#include <dirent.h>
+#include <windows.h>
+#elif defined __GNUC__
 #include <sys/types.h>
 #include <sys/stat.h>
+#endif
 using namespace std;
 
 typedef unsigned char u8;
@@ -638,7 +645,11 @@ void extractBIN(char* binfilename)
 
   //Make the directory if it doesn't exist
   char* folder = substringCharArray(param, 0, strlen(param)-4);
-  mkdir(folder, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+  #if defined(_WIN32)
+  _mkdir(folder);
+  #else 
+  mkdir(folder, 0777);
+  #endif
 
 
   //Loop through the file list
@@ -1178,7 +1189,6 @@ void createSBF(char* sbffilename, bool externaltxt)
         }
         fnum = intToBytes(fnum);
         sbffile.write((char*)&fnum, sizeof(fnum));
-
         //Get image extra data and write to SBF
         if(tag == 4 || tag==5 || tag==6 || tag==7)
         {
@@ -1201,15 +1211,22 @@ void createSBF(char* sbffilename, bool externaltxt)
           tag12 = intToBytes(tag12);
           sbffile.write((char*)&tag12, sizeof(tag12));
 
+          
           if(feval == 0xFE)
           {
             getline (datafile,line);
             colon = line.find(':');
             line = line.substr(colon+1);
             line = remove_char(line, ' ');
-            tag12 = hexStringToInt(line);
-            tag12 = intToBytes(tag12);
-            sbffile.write((char*)&tag12, sizeof(tag12));
+            int tag12size = line.length()/8;
+            string tag12ext= "";
+            for(int md = 0; md < tag12size; md++)
+            {
+              tag12ext = line.substr(md*8, 8);
+              int mdval = hexStringToInt(tag12ext);
+              mdval = intToBytes(mdval);
+              sbffile.write((char*)&mdval, sizeof(mdval));
+            }
           }
         }
       }
