@@ -149,7 +149,7 @@ string encodeString(string text)
             if(strcmp(val, kana) == 0)
             {
               int kmark = 4;
-              if(j>256)
+              if(j>=255)
               {
                 j-=256;
                 kmark++;
@@ -225,7 +225,7 @@ string encodeString(string text)
           {
             char* val = const_cast<char *>(line.c_str());
             if(strcmp(val, kana) == 0)
-            {   
+            {
               encodestream << hex << setfill('0') << std::uppercase << std::setw(2) << j+1;
               write = true;
               break;
@@ -355,7 +355,7 @@ string decodeString(u8* bytes, int size)
       }
       if(!isfound)
       {
-        decodestream << "<" 
+        decodestream << "<"
         << std::hex << std::setfill('0') << std::uppercase
         << std::setw(2) << static_cast<int>(bytes[i-1])
         << std::setw(2) << static_cast<int>(bytes[i])
@@ -437,7 +437,7 @@ string decodeString(u8* bytes, int size)
       }
       if(!isfound)
       {
-        decodestream << "<k" 
+        decodestream << "<k"
         << std::hex << std::setfill('0') << std::uppercase
         << std::setw(2) << static_cast<int>(bytes[i]+(bytes[i-1]==5?255:0))
         << ">";
@@ -445,7 +445,7 @@ string decodeString(u8* bytes, int size)
     }
     else
     {
-      decodestream << "<" 
+      decodestream << "<"
       << std::hex << std::setfill('0') << std::uppercase
       << std::setw(2) << static_cast<int>(bytes[i])
       << std::setw(2) << static_cast<int>(bytes[i+1])
@@ -506,7 +506,7 @@ void createBIN(char* binfilename)
       j++;
     }
     indexfile.close();
-  }else cout << "Unable to open file"; 
+  }else cout << "Unable to open file";
 
 
   //For each file, read in data and store in fileimport
@@ -647,7 +647,7 @@ void extractBIN(char* binfilename)
   char* folder = substringCharArray(param, 0, strlen(param)-4);
   #if defined(_WIN32)
   _mkdir(folder);
-  #else 
+  #else
   mkdir(folder, 0777);
   #endif
 
@@ -1211,7 +1211,7 @@ void createSBF(char* sbffilename, bool externaltxt)
           tag12 = intToBytes(tag12);
           sbffile.write((char*)&tag12, sizeof(tag12));
 
-          
+
           if(feval == 0xFE)
           {
             getline (datafile,line);
@@ -1297,7 +1297,7 @@ void createSBF(char* sbffilename, bool externaltxt)
     datafile.close();
     etextfile.close();
   }
-  else cout << "Problem opening SBF file!\n"; 
+  else cout << "Problem opening SBF file!\n";
   sbffile.close();
 }
 
@@ -1317,7 +1317,7 @@ void padFile(char* filename, int bytes)
       file.write((char*)"00",1);
     }
   }
-  else cout << "Problem opening file!\n"; 
+  else cout << "Problem opening file!\n";
   file.close();
 }
 
@@ -1642,7 +1642,7 @@ void extractSBF(char* sbffilename, bool fullextract)
         sbffile << "MD2-ext: "; outputBytesToFile(&sbffile, header, 4); sbffile << endl;
         }
       }
-      
+
 
 
       //Text length - note: may not actually be 12 length.
@@ -1758,7 +1758,7 @@ void extractSBF(char* sbffilename, bool fullextract)
       //cout << "Image File: " << fileindex[imagefile] << endl;
       if(edata)
       sbffile << "Image File: " << fileindex[imagefile] << endl;
-      
+
       if(tag == 4 || tag==5 || tag==6 || tag==7)
       {
         for(int i = 0; i < 4; i++) { header[i] = buff[index]; index++; }
@@ -1792,9 +1792,9 @@ void extractSBF(char* sbffilename, bool fullextract)
       /*tag: 00 00 00
       z-layer: 00
       x\y: 00 00 00 20 \ 00 00 00 12
-      00 00 00 00 
+      00 00 00 00
       elementid?: FF FF FF FF (00 00 02 58)
-      FF FF FF FF 
+      FF FF FF FF
       img file: 00 00 00 05
       extra: 00 00 00 AF/E0 (if tag is 4/5)*/
     }
@@ -1899,7 +1899,7 @@ int main(int argc, char* argv[])
     }
     createSBF(param, externaltxt);
   }
-  
+
 
   return EXIT_SUCCESS;
 }
