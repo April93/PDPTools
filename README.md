@@ -10,10 +10,10 @@ Usage: ./pdpdec file mode [extra]
 
 Here are the various modes/functions: 
 
-extractbin: Extracts a .BIN file into a folder of the same name. 
-createbin: Creates a .BIN file using a folder of the same name. 
-padfile: Pads a given file with [extra] amount of bytes. 
-extractsbf: Extracts an SBF file to a txt file of the same name. Set [extra] to false to only extract text. 
+extractbin: Extracts a .BIN file into a folder of the same name.  
+createbin: Creates a .BIN file using a folder of the same name.  
+padfile: Pads a given file with [extra] amount of bytes.  
+extractsbf: Extracts an SBF file to a txt file of the same name. Set [extra] to false to only extract text.  
 createsbf: Creates an SBF from a txt file of the same name. Set [extra] to true to use an external txt file of name [file]tr.txt 
 
 compstory.sh and comptuts.sh are example scripts that compile sbf files into the proper bin, and rebuilds the bin archive.
@@ -25,8 +25,8 @@ PDPI allows for basic editing of .BIF files (with magic byte header 3FIB).
 When prompted, you can use the following commands:
 
 exportall: Exports all of the frames of the bif file into pngs.  
-import: Imports a png file into a frame of the bif.
-save: Saves the bif file.
+import: Imports a png file into a frame of the bif.  
+save: Saves the bif file.  
 
 ## extractsongs.py
 
