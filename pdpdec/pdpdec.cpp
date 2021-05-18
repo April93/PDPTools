@@ -646,7 +646,7 @@ void extractBIN(char* binfilename)
   //Make the directory if it doesn't exist
   char* folder = substringCharArray(param, 0, strlen(param)-4);
   #if defined(_WIN32)
-  _mkdir(folder);
+  mkdir(folder);
   #else
   mkdir(folder, 0777);
   #endif

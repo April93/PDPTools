@@ -284,7 +284,7 @@ int main(int argc, char *argv[])
       cin >> outfile;
       cout << "Saving to " << outfile << endl;
       //bff2s[b].importImage((char*)infile.c_str());
-      ofstream sfile(outfile);
+      ofstream sfile(outfile.c_str());
       sfile << "3FIB";
 
       for(int w = 0; w < 8; w++)
