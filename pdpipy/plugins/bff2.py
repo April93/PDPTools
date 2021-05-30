@@ -15,6 +15,10 @@ class bff2:
 	name = ""
 	colornum = 0
 	colors = []
+	charnum24 = 0
+	charidx24 = []
+	charwidths24 = []
+	charheights24 = []
 	imagesize = 0
 	imgbuf = []
 	decompressedimgbuf = []
@@ -43,13 +47,16 @@ class bff2:
 			print ("Not a BFF2 file!")
 			return
 		index = 4 #Skipping magic bytes since we already know
-		self.compressed = compressed
+		#self.compressed = compressed
 		self.offset = offset
 		#print "BFF2 Offset:",self.offset
 
 		#Get type of BFF2
 		self.headerdata = data[index:index+8] #Not sure what this data does. not important?
 		self.imgtype = data[index+3]
+		print (self.headerdata, data[index+2])
+		print (format(data[index+2], '#010b'))
+		self.compressed = int(format(data[index+2], '#010b')[6])
 		index += 8
 		#print "BFF2 Type:",hex(self.imgtype), self.headerdata
 
@@ -99,6 +106,35 @@ class bff2:
 				index += 4
 			#print "Colors fetched: ", len(self.colors)
 
+		if self.imgtype == 0x24:
+			#self.compressed = 0
+			self.charnum24 = readValue(data, index, 1)
+			index += 4
+			print ("charnum24:", self.charnum24)
+			self.charidx24 = []
+			self.charwidths24 = []
+			self.charheights24 = []
+			for i in range(0,self.charnum24):
+				#Read Character Metadata
+				charmeta = readValue(data, index, 1)
+				metadata = '{:032b}'.format(charmeta)
+
+				#Index of Character image data is First 20 bits
+				#Height is the next 6 bits
+				#Width is the last 6 bits
+				#As nibbles it looks like idx(#####), H/W(###)
+				charidx = int(metadata[:20],2)
+				charwidth = int(metadata[-6:],2)
+				charheight = int(metadata[-12:-6],2)
+				# print ("charidx:",charidx, int(charidx,2))
+				# print ("charwidth:",charwidth, int(charwidth,2))
+				# print ("charheight:",charheight, int(charheight,2))
+				self.charidx24.append(charidx)
+				self.charwidths24.append(charwidth)
+				self.charheights24.append(charheight)
+				index += 4
+			#print ("charwidths24:", self.charwidths24)
+
 		self.imagesize = len(data)-index
 		#print "Image Size: ", self.imagesize
 
@@ -115,6 +151,8 @@ class bff2:
 		print ("Width:", self.width)
 		print ("Color Size:", self.colorSize)
 		print ("Number of Colors:", self.colornum)
+		print ("Charnum24:", self.charnum24)
+		# print ("charwidths24:", self.charwidths24)
 		#print( self.colors)
 		print ("Image Size:", self.imagesize)
 		print ("Compressed:", self.compressed)
@@ -200,7 +238,38 @@ class bff2:
 			self.decompress()
 		imgin = 0
 		image = []
-		print (len(self.decompressedimgbuf), self.width*self.height)
+		print (len(self.decompressedimgbuf), self.width*self.height, self.width, self.height)
+
+		#Handle 0x24 images differently
+		if self.imgtype == 0x24:
+			#Fix width/height for display
+			totalwidth = 0
+			for c in range(0, self.charnum24):
+				totalwidth += self.charwidths24[c]
+				if self.height < self.charheights24[c]:
+					self.height = self.charheights24[c]
+			if self.width < totalwidth:
+				self.width = totalwidth
+			image = [[0,0,0,0]] * (self.width*self.height)
+			print (len(image))
+
+			#Go through each letter
+			cw = 0
+			for c in range(0, self.charnum24):
+				imgin = self.charidx24[c]
+				for y in range (0, self.charheights24[c]):
+					for x in range (0, self.charwidths24[c]):
+						if imgin+1 >= len(self.decompressedimgbuf):
+							imgin = len(self.decompressedimgbuf)-2
+						shade = self.decompressedimgbuf[imgin];
+						alpha = self.decompressedimgbuf[imgin+1];
+						#print (x, y, c, self.charwidths24[c], self.charheights24[c], (y*self.width)+x+cw)
+						image[(y*self.width)+x+cw] = [shade,shade,shade,alpha];
+						imgin+=2
+				cw += self.charwidths24[c]
+			self.rawimage = image
+			return image
+
 		for y in range (0, self.height):
 			for x in range(0, self.width):
 			#while imgin < len(self.decompressedimgbuf):
@@ -245,13 +314,13 @@ class bff2:
 					image.append([shade,shade,shade,0xFF]);
 					imgin+=1;
 
-				if self.imgtype == 0x24: #LA8
-					if imgin+1 >= len(self.decompressedimgbuf):
-						imgin = len(self.decompressedimgbuf)-2
-					shade = self.decompressedimgbuf[imgin];
-					alpha = self.decompressedimgbuf[imgin+1];
-					image.append([shade,shade,shade,alpha]);
-					imgin+=2;
+				# if self.imgtype == 0x24: #LA8
+				# 	if imgin+1 >= len(self.decompressedimgbuf):
+				# 		imgin = len(self.decompressedimgbuf)-2
+				# 	shade = self.decompressedimgbuf[imgin];
+				# 	alpha = self.decompressedimgbuf[imgin+1];
+				# 	image.append([shade,shade,shade,alpha]);
+				# 	imgin+=2;
 
 				if self.imgtype == 0x23 or self.imgtype == 0x22: #Font/1bpp/LA4
 					if imgin >= len(self.decompressedimgbuf):

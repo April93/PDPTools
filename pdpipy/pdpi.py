@@ -88,6 +88,18 @@ def loadArchive(loadedFile):
 		listwidget.addItem(BIN.filenames[f])
 	#loadBIFData(BIN.filedata[1])
 
+#Loads a scene file
+SBF = None
+def loadScene(loadedFile):
+	global SBF
+	SBF = None
+	SBF = loadedFile
+def loadSceneData(data, name):
+	global SBF
+	SBF = None
+	extension = "sbf"
+	SBF = getattr(getattr(plugins, extension),extension)(data, filename=name)
+
 loadedFile = None
 def loadFile(self):
 	options = QFileDialog.Options()
@@ -112,6 +124,8 @@ def loadFile(self):
 			loadAnim(loadedFile)
 		if loadedFile.filetype == "image":
 			displayImage(loadedFile.exportImage(),loadedFile.width,loadedFile.height)
+		if loadedFile.filetype == "scene":
+			loadScene(loadedFile)
 
 def importImage(self):
 	options = QFileDialog.Options()
@@ -186,6 +200,9 @@ def clicked(qmodelindex):
 	if ".BIF" in item.text():
 		fdata = BIN.filedata[BIN.filenames.index(item.text())]
 		loadBIFData(fdata, item.text())
+	if ".SBF" in item.text():
+		fdata = BIN.filedata[BIN.filenames.index(item.text())]
+		loadSceneData(fdata, item.text())
 
 # listwidget.insertItem(0, "Red")
 # listwidget.insertItem(1, "Orange")
