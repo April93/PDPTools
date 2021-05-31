@@ -314,11 +314,12 @@ class bff2:
 					imgin+=1;
 
 				if self.imgtype == 0x32: #L8/Shadow - Needs some fixes?
-					if imgin >= len(self.decompressedimgbuf):
-						imgin = len(self.decompressedimgbuf)-1
+					if imgin+1 >= len(self.decompressedimgbuf):
+						imgin = len(self.decompressedimgbuf)-2
 					shade = self.decompressedimgbuf[imgin];
-					image.append([shade,shade,shade,0xFF]);
-					imgin+=1;
+					alpha = self.decompressedimgbuf[imgin+1];
+					image.append([shade,shade,shade,alpha]);
+					imgin+=2;
 
 				#For 0x24 images without a char table
 				if self.imgtype == 0x24: #LA8
