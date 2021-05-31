@@ -111,29 +111,35 @@ class bff2:
 			self.charnum24 = readValue(data, index, 1)
 			index += 4
 			print ("charnum24:", self.charnum24)
-			self.charidx24 = []
-			self.charwidths24 = []
-			self.charheights24 = []
-			for i in range(0,self.charnum24):
-				#Read Character Metadata
-				charmeta = readValue(data, index, 1)
-				metadata = '{:032b}'.format(charmeta)
+			#Something went wrong and the image doens't have a char table
+			#despite being 0x24
+			if self.charnum24 >= 2048:
+				self.charnum24 = 0
+				index -= 4
+			else:
+				self.charidx24 = []
+				self.charwidths24 = []
+				self.charheights24 = []
+				for i in range(0,self.charnum24):
+					#Read Character Metadata
+					charmeta = readValue(data, index, 1)
+					metadata = '{:032b}'.format(charmeta)
 
-				#Index of Character image data is First 20 bits
-				#Height is the next 6 bits
-				#Width is the last 6 bits
-				#As nibbles it looks like idx(#####), H/W(###)
-				charidx = int(metadata[:20],2)
-				charwidth = int(metadata[-6:],2)
-				charheight = int(metadata[-12:-6],2)
-				# print ("charidx:",charidx, int(charidx,2))
-				# print ("charwidth:",charwidth, int(charwidth,2))
-				# print ("charheight:",charheight, int(charheight,2))
-				self.charidx24.append(charidx)
-				self.charwidths24.append(charwidth)
-				self.charheights24.append(charheight)
-				index += 4
-			#print ("charwidths24:", self.charwidths24)
+					#Index of Character image data is First 20 bits
+					#Height is the next 6 bits
+					#Width is the last 6 bits
+					#As nibbles it looks like idx(#####), H/W(###)
+					charidx = int(metadata[:20],2)
+					charwidth = int(metadata[-6:],2)
+					charheight = int(metadata[-12:-6],2)
+					# print ("charidx:",charidx, int(charidx,2))
+					# print ("charwidth:",charwidth, int(charwidth,2))
+					# print ("charheight:",charheight, int(charheight,2))
+					self.charidx24.append(charidx)
+					self.charwidths24.append(charwidth)
+					self.charheights24.append(charheight)
+					index += 4
+				#print ("charwidths24:", self.charwidths24)
 
 		self.imagesize = len(data)-index
 		#print "Image Size: ", self.imagesize
@@ -241,7 +247,7 @@ class bff2:
 		print (len(self.decompressedimgbuf), self.width*self.height, self.width, self.height)
 
 		#Handle 0x24 images differently
-		if self.imgtype == 0x24:
+		if self.imgtype == 0x24 and self.charnum24 > 0:
 			#Fix width/height for display
 			totalwidth = 0
 			for c in range(0, self.charnum24):
@@ -314,13 +320,14 @@ class bff2:
 					image.append([shade,shade,shade,0xFF]);
 					imgin+=1;
 
-				# if self.imgtype == 0x24: #LA8
-				# 	if imgin+1 >= len(self.decompressedimgbuf):
-				# 		imgin = len(self.decompressedimgbuf)-2
-				# 	shade = self.decompressedimgbuf[imgin];
-				# 	alpha = self.decompressedimgbuf[imgin+1];
-				# 	image.append([shade,shade,shade,alpha]);
-				# 	imgin+=2;
+				#For 0x24 images without a char table
+				if self.imgtype == 0x24: #LA8
+					if imgin+1 >= len(self.decompressedimgbuf):
+						imgin = len(self.decompressedimgbuf)-2
+					shade = self.decompressedimgbuf[imgin];
+					alpha = self.decompressedimgbuf[imgin+1];
+					image.append([shade,shade,shade,alpha]);
+					imgin+=2;
 
 				if self.imgtype == 0x23 or self.imgtype == 0x22: #Font/1bpp/LA4
 					if imgin >= len(self.decompressedimgbuf):
