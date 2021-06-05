@@ -283,8 +283,8 @@ class sbf:
 				if val1 >= 0xF0:
 					fthing = data[readindex:readindex+8]
 					readindex += 8
-					val1 = data[read]
-					readindex += 1
+					#val1 = data[readindex]
+					#readindex += 1
 					if printfull:
 						print ("fthing:", fthing)
 
@@ -361,7 +361,7 @@ class sbf:
 			readindex += 4
 			if printfull:
 				print ("extradata:", extradata)
-			if extradata >= 1:
+			while extradata >= 1:
 				code = 0
 				endval = 4294901888
 				while code != endval and extradata >= 1:
@@ -370,9 +370,9 @@ class sbf:
 					readindex += 4
 					if printfull:
 						print ("Misc Extra Data:", miscextradata)
-					if code == 0x00ff0080 or code == 0xFF000080:
+					if code == 0x00ff0080 or code == 0xFF000080 or code == 0xFFFF0080 or code == 0x0000FF80:
 						code = endval
-						extradata = -1
+						extradata -= 1
 
 
 
