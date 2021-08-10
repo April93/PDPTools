@@ -66,6 +66,7 @@ def loadAnim(loadedFile):
 	BIF = loadedFile
 	BIF.images[loc].printvals()
 	displayImage(BIF.images[loc].exportImage(),BIF.images[loc].width,BIF.images[loc].height)
+	imgwin.show()
 def loadBIFData(data, name):
 	global loc
 	global BIF
@@ -75,6 +76,18 @@ def loadBIFData(data, name):
 	print (name)
 	BIF.images[loc].printvals()
 	displayImage(BIF.images[loc].exportImage(),BIF.images[loc].width,BIF.images[loc].height)
+	imgwin.show()
+
+img = None
+def loadImage(loadedFile):
+	global loc
+	loc = 0
+	global img
+	img = None
+	img = loadedFile
+	img.printvals()
+	displayImage(img.exportImage(),img.width,img.height)
+	imgwin.show()
 
 #Loads an archive file into the gui list
 BIN = None
@@ -87,6 +100,7 @@ def loadArchive(loadedFile):
 	for f in range(0,len(BIN.files)):
 		listwidget.addItem(BIN.filenames[f])
 	#loadBIFData(BIN.filedata[1])
+	listwidget.show()
 
 #Loads a scene file
 SBF = None
@@ -123,7 +137,8 @@ def loadFile(self):
 		if loadedFile.filetype == "anim":
 			loadAnim(loadedFile)
 		if loadedFile.filetype == "image":
-			displayImage(loadedFile.exportImage(),loadedFile.width,loadedFile.height)
+			loadImage(loadedFile)
+			#displayImage(loadedFile.exportImage(),loadedFile.width,loadedFile.height)
 		if loadedFile.filetype == "scene":
 			loadScene(loadedFile)
 
@@ -151,27 +166,35 @@ def btnRight(self):
 	BIF.images[loc].printvals()
 	displayImage(BIF.images[loc].exportImage(),BIF.images[loc].width,BIF.images[loc].height)
 
-layout.addWidget(label)
+
+#Setup Image Layout
+imgwin = QWidget()
+imglayout = QVBoxLayout()
+imglayout.addWidget(label)
+imgwin.setLayout(imglayout)
+
 
 #===========
-#File button layout
+#File button layout for image
 filebtnlayout = QHBoxLayout()
 
-#Add Load File Button to layout
-btn = QPushButton("Load File")
-btn.clicked.connect(loadFile)
-btn.resize(40,100)
-btn.move(0,0)
-filebtnlayout.addWidget(btn)
 
 #Add an export button to the layout
-btne = QPushButton("Export")
+btne = QPushButton("Export Frame")
 btne.clicked.connect(exportBFF2)
 btne.resize(40,100)
 btne.move(0,0)
 filebtnlayout.addWidget(btne)
 
-layout.addLayout(filebtnlayout)
+#Add an import button to the layout
+btni = QPushButton("Import Frame Image")
+btni.clicked.connect(importImage)
+btni.resize(40,100)
+btni.move(0,0)
+filebtnlayout.addWidget(btni)
+
+
+#layout.addLayout(filebtnlayout)
 #==========
 
 #Add < and > buttons to a horizontal layout, and that hlayout to the layout of the window
@@ -182,17 +205,17 @@ lrbtnlayout.addWidget(btnl)
 btnr = QPushButton(">")
 btnr.clicked.connect(btnRight)
 lrbtnlayout.addWidget(btnr)
-layout.addLayout(lrbtnlayout)
+#layout.addLayout(lrbtnlayout)
 #==========
 
-#Add an export button to the layout
-# btni = QPushButton("Import")
-# btni.clicked.connect(importImage)
-# btni.resize(40,100)
-# btni.move(0,0)
-# layout.addWidget(btni)
+#Add UI to image window
+imglayout.addLayout(filebtnlayout)
+imglayout.addLayout(lrbtnlayout)
+
+#===============================
 
 
+#Actions for clicking inside of list
 def clicked(qmodelindex):
 	item = listwidget.currentItem()
 	if item is None:
@@ -204,13 +227,15 @@ def clicked(qmodelindex):
 		fdata = BIN.filedata[BIN.filenames.index(item.text())]
 		loadSceneData(fdata, item.text())
 
-# listwidget.insertItem(0, "Red")
-# listwidget.insertItem(1, "Orange")
-# listwidget.insertItem(2, "Blue")
-# listwidget.insertItem(3, "White")
-# listwidget.insertItem(4, "Green")
 listwidget.currentItemChanged.connect(clicked)
-layout.addWidget(listwidget)
+#layout.addWidget(listwidget)
+
+#Add Load File Button to layout
+btn = QPushButton("Load File")
+btn.clicked.connect(loadFile)
+btn.resize(40,100)
+btn.move(0,0)
+layout.addWidget(btn)
 
 
 #layout.addWidget(QPushButton('Top'))
