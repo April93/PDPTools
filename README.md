@@ -28,6 +28,10 @@ exportall: Exports all of the frames of the bif file into pngs.
 import: Imports a png file into a frame of the bif.  
 save: Saves the bif file.  
 
+## pdpipy
+
+A python/gui version of PDPI. Currently allows viewing and exporting of .BIF files, opening/viewing .BIN archives, and rudimentary support for .seg and .sbf files.
+
 ## extractsongs.py
 
 extractsongs.py is a simple script that extracts all of the musyx files from panepon.plf.
