@@ -94,7 +94,7 @@ class bff2:
 		#Image data starts here I think?
 
 		#If BFF2 is type 8bpp (0x33), Get Palette
-		if self.imgtype == 0x33:
+		if self.imgtype == 0x33 or self.imgtype == 0x32:
 			self.colornum = readValue(data,index,1)
 			index += 4
 			#print "Colors:", self.colornum
@@ -303,23 +303,15 @@ class bff2:
 					image.append([int(r),int(g),int(b),int((val2&1)*255)])
 					imgin+=2;
 
-				if self.imgtype == 0x33: #8bpp
+				if self.imgtype == 0x33 or self.imgtype == 0x32: #8bpp
 					if imgin >= len(self.decompressedimgbuf):
 						imgin = len(self.decompressedimgbuf)-1
 					if self.decompressedimgbuf[imgin] < len(self.colors):
 						image.append(self.colors[self.decompressedimgbuf[imgin]]);
 					else:
 						image.append(self.colors[self.decompressedimgbuf[imgin]%len(self.colors)]);
-						print (self.decompressedimgbuf[imgin])
+						#print (self.decompressedimgbuf[imgin])
 					imgin+=1;
-
-				if self.imgtype == 0x32: #L8/Shadow - Needs some fixes?
-					if imgin+1 >= len(self.decompressedimgbuf):
-						imgin = len(self.decompressedimgbuf)-2
-					shade = self.decompressedimgbuf[imgin];
-					alpha = self.decompressedimgbuf[imgin+1];
-					image.append([shade,shade,shade,alpha]);
-					imgin+=2;
 
 				#For 0x24 images without a char table
 				if self.imgtype == 0x24: #LA8
