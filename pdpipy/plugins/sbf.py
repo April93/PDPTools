@@ -143,6 +143,8 @@ class sbf:
 			#Unknown Header/Type info
 			scenetype = data[readindex:readindex+4]
 			readindex += 4
+			if printfull:
+				print ("Scene Type: ", scenetype)
 
 			#Read Scene name length
 			scenenamelength = readValue(data, readindex, 1)
@@ -166,6 +168,8 @@ class sbf:
 				if printfull:
 					print("Menu Entry:",m)
 				menuheader = readValue(data, readindex, 1)
+				if printfull:
+					print ("menuheader: ", menuheader)
 
 				# Simplified Menu Extraction/Import
 				# header[3]
@@ -185,6 +189,8 @@ class sbf:
 					menusize = 17*4
 				if menuheader == 0x000900f1:
 					menusize = 17*4
+				if menuheader == 64:
+					menusize = 16*4
 				readindex += 4
 				menudata = data[readindex:readindex+menusize]
 				readindex += menusize
@@ -198,6 +204,8 @@ class sbf:
 				print ("Text Items:", textitemnum)
 
 			for t in range(0, textitemnum):
+				if printfull:
+					print ("Text Item Number: ", t, '/', textitemnum)
 				itemtype = data[readindex:readindex+4]
 				itemtypeint = readValue(data, readindex, 1)
 				if printfull:
@@ -218,12 +226,26 @@ class sbf:
 				# Some sort of marker/header. Seems to determine triggered events/linked pictures
 				# Everything with the third byte above 5 has values here. Might not all be used the same
 				if itemtype[2] > 5:
+					if printfull:
+						print ("Itemtype[2]:", itemtype[2])
 					marker = data[readindex:readindex+8]
+					if printfull:
+						print ("marker: ", marker)
+					readindex += 8
+
+				if itemtype[2] == 0x4C:
+					if printfull:
+						print ("Itemtype[2]:", itemtype[2])
+					marker2 = data[readindex:readindex+8]
+					if printfull:
+						print ("marker2: ", marker2)
 					readindex += 8
 
 				#0000 c847 - Has a mystery value (Perhaps a second marker?)
 				if itemtypeint == 0xc847:
 					c847val = data[readindex:readindex+8]
+					if printfull:
+						print ("c847val: ", c847val)
 					readindex += 8
 
 				#Text Colors
@@ -328,6 +350,11 @@ class sbf:
 
 				imagefile = readValue(data, readindex, 1)
 				readindex += 4
+				if(imagefile == 4294967295):
+					imagefile = readValue(data, readindex, 1)
+					readindex += 4
+				if printfull:
+					print ("Image File: ", imagefile, "/", len(self.importedfiles))
 				imagename = self.importedfiles[imagefile]
 				if printfull:
 					print ("Image File:", imagename)
