@@ -76,6 +76,8 @@ class bff2:
 		if self.imgtype == 0x54: #RGBA5551
 			self.width = int(self.rawwidth/2)
 			self.colorSize = 2
+		if self.imgtype == 0x32:
+			self.width = self.rawwidth*2
 		if self.imgtype == 0x24: #LA8
 			self.width = int(self.rawwidth/2)
 			self.colorSize = 2
@@ -303,13 +305,30 @@ class bff2:
 					image.append([int(r),int(g),int(b),int((val2&1)*255)])
 					imgin+=2;
 
-				if self.imgtype == 0x33 or self.imgtype == 0x32: #8bpp
+				if self.imgtype == 0x33: #8bpp
 					if imgin >= len(self.decompressedimgbuf):
 						imgin = len(self.decompressedimgbuf)-1
 					if self.decompressedimgbuf[imgin] < len(self.colors):
 						image.append(self.colors[self.decompressedimgbuf[imgin]]);
 					else:
 						image.append(self.colors[self.decompressedimgbuf[imgin]%len(self.colors)]);
+						#print (self.decompressedimgbuf[imgin])
+					imgin+=1;
+
+				if self.imgtype == 0x32: #8bpp
+					if imgin >= len(self.decompressedimgbuf):
+						imgin = len(self.decompressedimgbuf)-1
+					byte = self.decompressedimgbuf[imgin]
+					byte1 = (byte&0xF0)>>4
+					byte2 = byte&0x0F
+					if byte1 < len(self.colors):
+						image.append(self.colors[byte1]);
+					else:
+						image.append(self.colors[byte1%len(self.colors)]);
+					if byte2 < len(self.colors):
+						image.append(self.colors[byte2]);
+					else:
+						image.append(self.colors[byte2%len(self.colors)]);
 						#print (self.decompressedimgbuf[imgin])
 					imgin+=1;
 
